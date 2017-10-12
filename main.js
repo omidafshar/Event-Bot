@@ -42,7 +42,7 @@ app.use(bodyParser.urlencoded({
 // Webhook validation
 app.get('/webhook', function(req, res) {
   if (req.query['hub.mode'] === 'subscribe' &&
-      req.query['hub.verify_token'] === 'event_bot') {
+      req.query['hub.verify_token'] === process.env.VERIFY_TOKEN) {
     console.log("Validating webhook");
     res.status(200).send(req.query['hub.challenge']);
   } else {
@@ -625,7 +625,7 @@ function sendTextMessage(recipientId, messageText) {
 function callSendAPI(messageData) {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: { access_token: 'EAAHea0nMZBhUBAPd12opXPxMRmsSTqidxv5rHakyIqZBaISpfJhSZBOLW0nMszNJbyoenq9JHWrebHH9UyLYbj7P9U6bbY7gu3J2xkdPbLOKWyWiuCA1XSc9yegHSopzsmMJgc6pjpZB5fjZCZATXBrjLJpB38qEVkaZCZAZBZCBZAVOQZDZD' },
+    qs: { access_token: process.env.PAGE_ACCESS_TOKEN },
     method: 'POST',
     json: messageData
 
@@ -838,8 +838,7 @@ function findEvents(UserID, callback) {
         + '&type=page&fields=name, events.order(chronological){name, start_time, description}&method=GET';
     var rawData = request({
             uri:uriLink,
-                qs: { access_token:
-                'EAAHea0nMZBhUBAPd12opXPxMRmsSTqidxv5rHakyIqZBaISpfJhSZBOLW0nMszNJbyoenq9JHWrebHH9UyLYbj7P9U6bbY7gu3J2xkdPbLOKWyWiuCA1XSc9yegHSopzsmMJgc6pjpZB5fjZCZATXBrjLJpB38qEVkaZCZAZBZCBZAVOQZDZD' },
+                qs: { access_token: process.env.PAGE_ACCESS_TOKEN },
                 method: 'POST',
                 }, function(error, response, body) {
                   if (!error && response.statusCode == 200) {
