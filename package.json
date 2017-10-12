@@ -1,29 +1,32 @@
 {
   "name": "event-bot",
   "version": "1.0.0",
-  "description": "Cal Hacks 4.0 Messenger Bot for Finding and Filtering Facebook Events",
-  "engines": {
-    "node": "6.11.4"
+  "description": "Facebook Messenger chat bot for finding university events based on user preferences.",
+  "main": "main.js",
+  "dependencies": {
+    "express": "^4.16.2",
+    "firebase-admin": "^5.4.2",
+    "path": "^0.12.7",
+    "request": "^2.83.0"
   },
-  "main": "receive_and_send_msgs.js",
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/njriasan/Event_Bot.git"
+    "url": "git+https://github.com/omidafshar/Event-Bot.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "chat",
+    "bot",
+    "Facebook",
+    "API"
+  ],
+  "author": "Omid Afshar, Nicholas Riasanovsky, Kevin Chang, Jackson Sipple",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/njriasan/Event_Bot/issues"
+    "url": "https://github.com/omidafshar/Event-Bot/issues"
   },
-  "homepage": "https://github.com/njriasan/Event_Bot#readme",
-  "dependencies": {
-    "dotenv": "^4.0.0",
-    "express": "^4.16.1",
-    "firebase-admin": "^5.4.1"
-  },
-  "devDependencies": {}
+  "homepage": "https://github.com/omidafshar/Event-Bot#readme"
 }
