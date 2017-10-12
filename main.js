@@ -15,7 +15,7 @@ var messengerButton = "<html><head><title>Facebook Messenger Bot</title></head><
 //Sets up the firebase database
 var admin = require("firebase-admin");
 
-var serviceAccount = require(process.env.SERVICE_ACCOUNT_KEY);
+var serviceAccount = process.env.SERVICE_ACCOUNT_KEY;
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
