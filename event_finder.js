@@ -1,8 +1,21 @@
-const request = require('request');
+/**
+ * This file contains the code that finds events based on a user's preferences. 
+ */
+
+// Establish a reference to the database
 const dbRef = require('./db')
 
+// This serves as a reference for external files to use to find Facebook events
 var eventFinder = {}
 
+/**
+ * Finds Facebook events corresponding to the preferences associated with the user specified by _USERID. Uses the
+ * Facebook Graph API to search for events.
+ * 
+ * @param {string} UserID - The unique ID of the user
+ * @param {function} callback - The callback function that is called when the request for events is complete
+ * @returns {function} - The callback function
+ */
 eventFinder.findEvents = function(UserID, callback) {
     /** Search for all places within location. */
     //var school = readSchool(UserID);
@@ -52,9 +65,15 @@ eventFinder.findEvents = function(UserID, callback) {
 
         });
     }
-/*
-  Return 1 if the second date is greater than the first date, -1 if the first date is greater than the first day, and 0 if the two dates are equal.
-*/
+
+/**
+ * This is a helper function that compares two dates.
+ * 
+ * @param {Date} date1 - The first date
+ * @param {Date} date2 - The second date
+ * @returns {number} - 1 if the second date is greater than the first date, -1 if 
+ * the first date is greater than the first day, and 0 if the two dates are equal.
+ */
 function compareDates(date1, date2) {
   if (date2.getFullYear() > date1.getFullYear()) {
     return 1;
@@ -77,7 +96,14 @@ function compareDates(date1, date2) {
   }
 }
 
-//Creates a new date object that is days number of days in the future.
+/**
+ * This is a helper function that creates a new date that is a certain number of days in the future from an inputted
+ * date.
+ * 
+ * @param {Date} date - The input date
+ * @param {number} days - The number of days in the future you want the new date to be
+ * @returns {Date} - A new date
+ */
 function createNewDate(date, days) {
     var total_days = date.getDate() + days;
     var curr_month = date.getMonth(); 
@@ -93,7 +119,13 @@ function createNewDate(date, days) {
     return new Date(curr_year, curr_month, total_days);
   }
   
-  //Determines the number of days in a month
+  /**
+   * This is a helper function that determines the number of days in a month
+   * 
+   * @param {number} month - The specified month
+   * @param {number} year - The specified year
+   * @returns {number} - The number of days in the specified month for that year
+   */
   function monthDays(month, year) {
     if (month == 3 || month == 5 || month == 8 || month == 10) {
       return 30;

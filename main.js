@@ -1,9 +1,8 @@
-//
-// This is main file containing code implementing the Express server and functionality for the Express echo bot.
-//
-/*
-  Provided by the facebook introduction to the messenger api.
-*/
+/**
+ * This is the main file containing code implementing the Express server and functionality for the chat bot.
+ */
+
+// Provided by the Facebook Introduction to the Messenger API
 'use strict';
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -13,10 +12,7 @@ const dbRef = require('./db')
 const eventFinder = require('./event_finder')
 var messengerButton = "<html><head><title>Facebook Messenger Bot</title></head><body><h1>Facebook Messenger Bot</h1>This is a bot based on Messenger Platform QuickStart. For more details, see their <a href=\"https://developers.facebook.com/docs/messenger-platform/guides/quick-start\">docs</a>.<script src=\"https://button.glitch.me/button.js\" data-style=\"glitch\"></script><div class=\"glitchButton\" style=\"position:fixed;top:20px;right:20px;\"></div></body></html>";
 
-/*
-  Provided by the facebook introduction to the messenger api.
-*/
-// The rest of the code implements the routes for our Express server.
+// Initializes the Express app that will handling the routes for the chat bot.
 let app = express();
 
 app.use(bodyParser.json());
@@ -25,9 +21,8 @@ app.use(bodyParser.urlencoded({
 }));
 
 /*
-  Provided by the facebook introduction to the messenger api.
+  Provided by the Facebook Introduction to the Messenger API. Performs webhook validation.
 */
-// Webhook validation
 app.get('/webhook', function(req, res) {
   if (req.query['hub.mode'] === 'subscribe' &&
       req.query['hub.verify_token'] === process.env.VERIFY_TOKEN) {
@@ -40,9 +35,8 @@ app.get('/webhook', function(req, res) {
 });
 
 /*
-  Provided by the facebook introduction to the messenger api.
+  Provided by the Facebook Introduction to the Messenger API. Displays the web page.
 */
-// Display the web page
 app.get('/', function(req, res) {
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.write(messengerButton);
@@ -50,9 +44,8 @@ app.get('/', function(req, res) {
 });
 
 /*
-  Provided by the facebook introduction to the messenger api.
+  Facebook Introduction to the Messenger API. Performs message processing.
 */
-// Message processing
 app.post('/webhook', function (req, res) {
   console.log(req.body);
   var data = req.body;
@@ -79,20 +72,29 @@ app.post('/webhook', function (req, res) {
 
     // Assume all went well.
     //
-    // You must send back a 200, within 20 seconds, to let us know
+    // Must send back a 200, within 20 seconds, to let Facebook know
     // you've successfully received the callback. Otherwise, the request
-    // will time out and we will keep trying to resend.
+    // will time out and Facebook will keep trying to resend.
     res.sendStatus(200);
   }
 });
 
-
+/**
+ * Creates a new entry in the database for the user associated with _USERID. Inserts placeholder values
+ * for each field in the schema, which will be updated with real values later.
+ * 
+ * @param {string} _userId - The unique ID of the user
+ */
 function initializeUser(_userId) {
-  dbRef.writeUserData(_userId, "uc berkeley", "puppies", "1", "7", "4:20 pm", "0");
+  dbRef.writeUserData(_userId, "uc berkeley", "puppies", "1", "7", "1:20 pm", "0");
 }
 
 
-// Incoming events handling
+/**
+ * Performs incoming events handling for received messages
+ * 
+ * @param {Object} event - An event object containing information about the message received
+ */
 function receivedMessage(event) {
   var senderID = event.sender.id;
   var recipientID = event.recipient.id;
@@ -118,7 +120,7 @@ function receivedMessage(event) {
   var commands = messageText.split(" ");
 
   if (commands.length) {
-    //Upon Receiving a message 
+    //Upon receiving a message, send a response based on the content of the received message
     switch (commands[0]) {
       case 'help':
         if (commands.length == 1) {
@@ -138,7 +140,7 @@ function receivedMessage(event) {
           });
         }
         break;
-      case 'set-min': //Figure out the exact details
+      case 'set-min':
         if (commands.length != 2) {
           sendInvalidCommandMsg(senderID);
         } else {
@@ -246,10 +248,24 @@ function receivedMessage(event) {
 });
 }
 
+/**
+ * Sets the value for what time the user associated with _USERID wants to be updated on events
+ * corresponding to their preferences
+ * 
+ * @param {string} UserID - The unique ID of the user
+ * @param {string} time - The specified time
+ */
 function setUpdateTime(UserID, time) {
   dbRef.writeUserTime(UserID, time);
 }
 
+/**
+ * Sets the value for what keywords the user associated with _USERID wants to see in the events that the bot returns
+ * to them.
+ * 
+ * @param {string} UserID - The unique ID of the user
+ * @param {string} keywords - The keywords to be used in filtering events
+ */
 function setKeywords(UserID, keywords) {
   var i;
   for (i = 0; i < keywords.length; i++) {
@@ -257,6 +273,12 @@ function setKeywords(UserID, keywords) {
   }
 }
 
+/**
+ * Sets the value for the university corresponding to the user associated with _USERID
+ * 
+ * @param {string} UserID - The unique ID of the user
+ * @param {string} university - The keywords to be used in filtering events
+ */
 function setUniversity(UserID, university) {
   var i;
   var name = "";
@@ -269,6 +291,14 @@ function setUniversity(UserID, university) {
   dbRef.writeUserUniversity(UserID, name);
 }
 
+/**
+ * Sets the value for the maximum number of days in advance that the user associated with _USERID wants to see an event
+ * 
+ * @param {string} UserID - The unique ID of the user
+ * @param {string} value - The value for "max"
+ * @param {function} callback - The callback function that is called at the end of the function
+ * @returns {function} - The callback function
+ */
 function setMax(UserID, value, callback) {
   var max = convertToInt(value);
   if (!isNaN(max) && max >= 0) {
@@ -287,6 +317,14 @@ function setMax(UserID, value, callback) {
   }
 }
 
+/**
+ * Sets the value for the minimum number of days in advance that the user associated with _USERID wants to see an event
+ * 
+ * @param {string} UserID - The unique ID of the user
+ * @param {string} value - The value for "min"
+ * @param {function} callback - The callback function that is called at the end of the function
+ * @returns {function} - The callback function
+ */
 function setMin(UserID, value, callback) {
   var min = convertToInt(value);
   if (!isNaN(min) && min >= 0) {
@@ -305,6 +343,14 @@ function setMin(UserID, value, callback) {
   }
 }
 
+/**
+ * Sets the value for how often (i.e. daily, weekly, etc.) the user associated with _USERID wants to be notified about events
+ * 
+ * @param {string} UserID - The unique ID of the user
+ * @param {string} value - The "frequency" value, in number of days
+ * @param {function} callback - The callback function that is called at the end of the function
+ * @returns {function} - The callback function
+ */
 function setFrequency(UserID, value, callback) {
   var freq = convertToInt(value);
   if (!isNaN(freq) && freq >= 0) {
@@ -314,6 +360,12 @@ function setFrequency(UserID, value, callback) {
   return callback(-1);
 }
 
+/**
+ * This is a helper function that converts a string representing a number into an integer
+ * 
+ * @param {string} value - The string value to convert
+ * @returns {number} - The converted value, as an integer
+ */
 function convertToInt(value) {
   if (/^(\+|-)?\d+$/.test(value)) { //Borrowed from Sime Vidas on Stack Overflow https://stackoverflow.com/questions/4168360/convert-an-entire-string-into-an-integer-in-javascript
     return parseInt(value, 10);
@@ -321,6 +373,13 @@ function convertToInt(value) {
   return NaN;
 }
 
+/**
+ * Sends message to user indicating successful update of preferences, or error if anything went wrong
+ * 
+ * @param {string} recipientID - The recipientID of the user
+ * @param {string} setting - The setting that was updated
+ * @param {number} errorCode - The error code associated with this operation
+ */
 function sendSettingsMessage(recipientID, setting, errorCode) {
   var message;
   if (errorCode === -1) {
@@ -343,7 +402,7 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
       });
   } else {
     switch (setting) {
-      case 'set-min': //Figure out the exact details
+      case 'set-min':
         dbRef.readUserMin(recipientID, function(min) {
           var plurality;
           if (min === '1') {
@@ -463,15 +522,32 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
   }
 }
 
+/**
+ * Sends the events that were found
+ * 
+ * @param {string} recipientID - The recipientID of the user
+ * @param {Set} events - The set of events
+ */
 function sendEventsMessage(recipientID, events) {
   for (let item of events) sendTextMessage(recipientID, item);
 }
 
+/**
+ * Calls on the eventFinder to find events for the user corresponding to RECIPIENTID
+ * 
+ * @param {string} recipientID - The recipientID of the user
+ * @param {function} callback - The callback function passed into the eventFinder
+ * @returns {Set} - The set of events produced by the eventFinder
+ */
 function processEventRequest(recipientID, callback) {
   return eventFinder.findEvents(recipientID, callback);
 
 }
-
+/**
+ * Sends the default help message to the user associated with RECIPIENTID
+ * 
+ * @param {string} recipientID - The recipientID of the user
+ */
 function sendDefaultHelpMessage(recipientID) {
   var helpMessage = "Hi I am a bot designed to help you find events in your area. Here are the commands I recognize:\n " +
   "\"events\"\n " +
@@ -492,6 +568,12 @@ function sendDefaultHelpMessage(recipientID) {
   sendTextMessage(recipientID, helpMessage);
 }
 
+/**
+ * Sends the command help message for the command specified by the user associated with RECIPIENTID
+ * 
+ * @param {string} recipientID - The recipientID of the user
+ * @param {string} command - The command requested
+ */
 function sendCommandHelpMessage(recipientID, command) {
   var validCommand = true;
   var message;
@@ -563,13 +645,18 @@ function sendCommandHelpMessage(recipientID, command) {
   }
 }
 
+/**
+ * Sends the invalid command message to the user associated with RECIPIENTID
+ * 
+ * @param {string} recipientID - The recipientID for the user
+ */
 function sendInvalidCommandMsg(recipientID) {
   var messageText = "I'm sorry. I don't recognize that command. Try typing help to get a full list of commands I recognize or type help and a command name to learn how to use a command.";
   sendTextMessage(recipientID, messageText);
 }
 
 /*
-  Provided by the facebook introduction to the messenger api.
+  Provided by The Facebook Introduction to the Messenger API
 */
 function receivedPostback(event) {
   var senderID = event.sender.id;
@@ -592,7 +679,7 @@ function receivedPostback(event) {
 // Sending helpers
 //////////////////////////
 /*
-  Provided by the facebook introduction to the messenger api.
+  Provided by the The Facebook Introduction to the Messenger API
 */
 function sendTextMessage(recipientId, messageText) {
   var messageData = {
@@ -608,7 +695,7 @@ function sendTextMessage(recipientId, messageText) {
 }
 
 /*
-  Provided by the facebook tutorial to using the messenger api.
+  Provided by the The Facebook Introduction to the Messenger API
 */
 function callSendAPI(messageData) {
   request({

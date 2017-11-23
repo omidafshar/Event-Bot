@@ -1,8 +1,15 @@
+/**
+ * This file establishes a connection to the Firebase database containing all user preferences. It contains methods
+ * for reading from and writing to the database.
+ */
+
 //Sets up the firebase database
 var admin = require("firebase-admin");
 
+// Service account for Firebase database
 var serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
 
+// Initialize Firebase SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://event-bot-2.firebaseio.com"
@@ -11,20 +18,21 @@ admin.initializeApp({
 // Get a reference to the database service
 var database = admin.database();
 
-// Reference to database to be used by external files
+// This serves as a reference to the database to be used by external files
 var dbRef = {};
 
-//DataBase functions
+// The following functions read from and write to the Firebase database.
 
-/**
+/** 
+ * Writes data to the database for a particular user, specified by _USERID
  * 
- * @param {*} _userId 
- * @param {*} _university 
- * @param {*} _keywords 
- * @param {*} _min 
- * @param {*} _max 
- * @param {*} _time 
- * @param {*} _frequency 
+ * @param {string} _userId - The unique ID identifying the user whose data we are updating
+ * @param {string} _university - The university to be associated with the user
+ * @param {string} _keywords - The keywords to be associated with the user 
+ * @param {number} _min - The min value to be associated with the user 
+ * @param {number} _max - The max value to be associated with the user 
+ * @param {string} _time - The time to be associated with the user 
+ * @param {number} _frequency - The frequency to be associated with the user 
  */
 dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _time, _frequency) {
     database.ref('users/' + _userId).set({
@@ -43,13 +51,25 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
     });
   }
   
+  /**
+   * Updates the "university" field in the database for the user associated with _USERID
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {string} _university - The specified university
+   */
   dbRef.writeUserUniversity = function(_userId, _university) {
   
     database.ref('users/' + _userId).update({
         "university": _university,
       }); 
   }
-  
+
+  /**
+   * Updates the "keywords" field in the database for the user associated with _USERID
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {string} _keywords - The specified keywords
+   */
   dbRef.writeUserKeywords = function(_userId, _keywords) {
   
     database.ref('users/' + _userId).update({
@@ -57,6 +77,12 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
       }); 
   }
   
+  /**
+   * Updates the "min" field in the database for the user associated with _USERID
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {number} _min - The specified min value
+   */
   dbRef.writeUserMin = function(_userId, _min) {
   
     database.ref('users/' + _userId).update({
@@ -64,6 +90,12 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
       }); 
   }
   
+  /**
+   * Updates the "max" field in the database for the user associated with _USERID
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {number} _max - The specified max value
+   */
   dbRef.writeUserMax = function(_userId, _max) {
   
     database.ref('users/' + _userId).update({
@@ -71,6 +103,12 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
       }); 
   }
   
+  /**
+   * Updates the "time" field in the database for the user associated with _USERID
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {number} _time - The specified time value
+   */
   dbRef.writeUserTime = function(_userId, _time) {
   
     database.ref('users/' + _userId).update({
@@ -78,6 +116,12 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
       }); 
   }
   
+  /**
+   * Updates the "frequency" field in the database for the user associated with _USERID
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {number} _frequency - The specified frequency value
+   */
   dbRef.writeUserFrequency = function(_userId, _frequency) {
   
     database.ref('users/' + _userId).update({
@@ -85,6 +129,13 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
       }); 
   }
   
+  /**
+   * Gets all the data from the database for the user associated with _USERID
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {function} callback - The callback function that is called after the data is read
+   * @returns {function} - The callback function
+   */
   dbRef.readUserData = function(_userId, callback) {
   
     dbRef.readUserUniversity(_userId, function(university) {
@@ -104,6 +155,13 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
     });});});});});});
   }
   
+  /**
+   * Gets the current university for the user associated with _USERID from the database
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {function} callback - The callback function that is called after the data is read
+   * @returns {function|string} - The callback function, or an empty string if there is an error
+   */
   dbRef.readUserUniversity = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'university').once("value", function(snapshot) {
@@ -115,6 +173,13 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
     });
   }
   
+  /**
+   * Gets the current keywords for the user associated with _USERID from the database
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {function} callback - The callback function that is called after the data is read
+   * @returns {function|string} - The callback function, or an empty string if there is an error
+   */
   dbRef.readUserKeywords = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'keywords').once("value", function(snapshot) {
@@ -126,6 +191,13 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
     });
   }
   
+  /**
+   * Gets the current min value for the user associated with _USERID from the database
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {function} callback - The callback function that is called after the data is read
+   * @returns {function|string} - The callback function, or an empty string if there is an error
+   */
   dbRef.readUserMin = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'min').once("value", function(snapshot) {
@@ -137,6 +209,13 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
     });
   }
   
+  /**
+   * Gets the current max value for the user associated with _USERID from the database
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {function} callback - The callback function that is called after the data is read
+   * @returns {function|string} - The callback function, or an empty string if there is an error
+   */
   dbRef.readUserMax = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'max').once("value", function(snapshot) {
@@ -148,6 +227,13 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
     });
   }
   
+  /**
+   * Gets the current time value for the user associated with _USERID from the database
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {function} callback - The callback function that is called after the data is read
+   * @returns {function|string} - The callback function, or an empty string if there is an error
+   */
   dbRef.readUserTime = function(_userId, callback) {
     database.ref('users/' + _userId + '/' + 'time').once("value", function(snapshot) {
       console.log(snapshot.val());
@@ -158,6 +244,13 @@ dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _tim
     });
   }
   
+  /**
+   * Gets the current frequency value for the user associated with _USERID from the database
+   * 
+   * @param {string} _userId - The unique ID of the user
+   * @param {function} callback - The callback function that is called after the data is read
+   * @returns {function|string} - The callback function, or an empty string if there is an error
+   */
   dbRef.readUserFrequency = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'frequency').once("value", function(snapshot) {
