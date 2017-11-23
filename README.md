@@ -21,5 +21,5 @@ And many more.
 ## To Be Implemented
 1. Support for universities besides UC Berkeley (the bot currently finds events only at UC Berkeley).
 2. Automatic notifications: Allow users to set times and the frequency at which they want to receive automatic updates with events from the bot.
-3. UI Improvements: Send actual event to user, instead of a link to the event.
+3. UI Improvements: Instead of sending a link to the event, send the actual event to the user.
 
