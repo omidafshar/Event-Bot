@@ -9,29 +9,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
-const db = require('./db')
+const dbRef = require('./db')
 const eventFinder = require('./event_finder')
 var messengerButton = "<html><head><title>Facebook Messenger Bot</title></head><body><h1>Facebook Messenger Bot</h1>This is a bot based on Messenger Platform QuickStart. For more details, see their <a href=\"https://developers.facebook.com/docs/messenger-platform/guides/quick-start\">docs</a>.<script src=\"https://button.glitch.me/button.js\" data-style=\"glitch\"></script><div class=\"glitchButton\" style=\"position:fixed;top:20px;right:20px;\"></div></body></html>";
 
-<<<<<<< HEAD
-=======
-
-//Sets up the firebase database
-var admin = require("firebase-admin");
-
-console.log(process.env.SERVICE_ACCOUNT_KEY)
-
-var serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://event-bot-2.firebaseio.com"
-});
-
-// Get a reference to the database service
-var database = admin.database();
-
->>>>>>> parent of b98cd55... Update main.js
 /*
   Provided by the facebook introduction to the messenger api.
 */
@@ -107,7 +88,7 @@ app.post('/webhook', function (req, res) {
 
 
 function initializeUser(_userId) {
-  writeUserData(_userId, "uc berkeley", "puppies", "1", "7", "4:20 pm", "0");
+  dbRef.writeUserData(_userId, "uc berkeley", "puppies", "1", "7", "4:20 pm", "0");
 }
 
 
@@ -122,7 +103,7 @@ function receivedMessage(event) {
     senderID, recipientID, timeOfMessage);
   console.log(JSON.stringify(message));
 
-  readUserTime(senderID, function(exists) {
+  dbRef.readUserTime(senderID, function(exists) {
   
   if (exists === null) {
     console.log("help");
@@ -266,13 +247,13 @@ function receivedMessage(event) {
 }
 
 function setUpdateTime(UserID, time) {
-  writeUserTime(UserID, time);
+  dbRef.writeUserTime(UserID, time);
 }
 
 function setKeywords(UserID, keywords) {
   var i;
   for (i = 0; i < keywords.length; i++) {
-    writeUserKeywords(UserID, keywords[i]);
+    dbRef.writeUserKeywords(UserID, keywords[i]);
   }
 }
 
@@ -285,20 +266,20 @@ function setUniversity(UserID, university) {
       name = name + " ";
     }
   }
-  writeUserUniversity(UserID, name);
+  dbRef.writeUserUniversity(UserID, name);
 }
 
 function setMax(UserID, value, callback) {
   var max = convertToInt(value);
   if (!isNaN(max) && max >= 0) {
-    return readUserMin(UserID, function(min) {    
+    return dbRef.readUserMin(UserID, function(min) {    
       min = convertToInt(min);
       if (max < min) {
-        writeUserMax(UserID, value);
-        writeUserMin(UserID, value);
+        dbRef.writeUserMax(UserID, value);
+        dbRef.writeUserMin(UserID, value);
         return callback(1);
       }
-      writeUserMax(UserID, value);
+      dbRef.writeUserMax(UserID, value);
       return callback(0);
     });
   } else {
@@ -309,14 +290,14 @@ function setMax(UserID, value, callback) {
 function setMin(UserID, value, callback) {
   var min = convertToInt(value);
   if (!isNaN(min) && min >= 0) {
-    return readUserMax(UserID, function(max) {
+    return dbRef.readUserMax(UserID, function(max) {
     max = convertToInt(max);
     if (max < min) {
-      writeUserMax(UserID, value);
-      writeUserMin(UserID, value);
+      dbRef.writeUserMax(UserID, value);
+      dbRef.writeUserMin(UserID, value);
       return callback(1);
     }
-    writeUserMin(UserID, value);
+    dbRef.writeUserMin(UserID, value);
     return callback(0);
     });
   } else {
@@ -327,7 +308,7 @@ function setMin(UserID, value, callback) {
 function setFrequency(UserID, value, callback) {
   var freq = convertToInt(value);
   if (!isNaN(freq) && freq >= 0) {
-    writeUserFrequency(UserID, value)
+    dbRef.writeUserFrequency(UserID, value)
     return callback(0);
   }
   return callback(-1);
@@ -347,8 +328,8 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
     sendTextMessage(recipientID, message);
   } else if (errorCode === 1) {
       var plurality;
-      readUserMax(recipientID, function(max) {
-        readUserMin(recipientID, function(min) {
+      dbRef.readUserMax(recipientID, function(max) {
+        dbRef.readUserMin(recipientID, function(min) {
           if (max === '1') {
             plurality = '';
           }
@@ -363,7 +344,7 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
   } else {
     switch (setting) {
       case 'set-min': //Figure out the exact details
-        readUserMin(recipientID, function(min) {
+        dbRef.readUserMin(recipientID, function(min) {
           var plurality;
           if (min === '1') {
             plurality = '';
@@ -376,26 +357,26 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
         });
         break;
       case 'set-max':
-        readUserMax(recipientID, function(max) {
-        var plurality;
-        if (max === '1') {
-          plurality = '';
-        }
-        else {
-          plurality = 's';
-        }
-        message = "Max successfully set to " + max + " day" + plurality + " away.";
-        sendTextMessage(recipientID, message);
-      });
+        dbRef.readUserMax(recipientID, function(max) {
+          var plurality;
+          if (max === '1') {
+            plurality = '';
+          }
+          else {
+            plurality = 's';
+          }
+          message = "Max successfully set to " + max + " day" + plurality + " away.";
+          sendTextMessage(recipientID, message);
+        });
         break;
       case 'set-keywords':
-        readUserKeywords(recipientID, function(keyword) {
+        dbRef.readUserKeywords(recipientID, function(keyword) {
           message = "Keyword is now " + keyword + ".";
           sendTextMessage(recipientID, message);
         });
         break;
       case 'set-frequency':
-        readUserFrequency(recipientID, function(freq) {
+        dbRef.readUserFrequency(recipientID, function(freq) {
         var plurality;
         if (freq === '1') {
           plurality = '';
@@ -408,19 +389,19 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
         });
         break;
       case 'set-university':
-        readUserUniversity(recipientID, function(university) {
+        dbRef.readUserUniversity(recipientID, function(university) {
           message = "Updated current university to be " + university + ".";
           sendTextMessage(recipientID, message);
         });
         break;
       case 'set-update-time':
-        readUserTime(recipientID, function(time) {
+        dbRef.readUserTime(recipientID, function(time) {
           message = "Updated the automated message time to be " + time + ".";
           sendTextMessage(recipientID, message);
         });
         break;
       case 'show-preferences':
-        readUserData(recipientID, function(information) { 
+        dbRef.readUserData(recipientID, function(information) { 
           message = "University is " + information[0] + ".\n" +
                     "Current keyword is " + information[1] + ".\n" +
                     "Current minimum event distance is " + information[2] + " days away.\n" +
@@ -431,20 +412,20 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
         });           
         break;
       case 'show-keywords':
-        readUserKeywords(recipientID, function(keyword){
+        dbRef.readUserKeywords(recipientID, function(keyword){
           message = "Current keyword is " + keyword + ".";
           sendTextMessage(recipientID, message);
         });
         break;
       case 'show-university':
-        readUserUniversity(recipientID, function(university){
+        dbRef.readUserUniversity(recipientID, function(university){
           message = "University is " + university + ".";
           sendTextMessage(recipientID, message);
         });
         break;
       case 'show-timespan':
-        readUserMin(recipientID, function(min){
-          readUserMax(recipientID, function(max) {
+        dbRef.readUserMin(recipientID, function(min){
+          dbRef.readUserMax(recipientID, function(max) {
             var ending_1;
             if (min === "1") {
               ending_1 = "";
@@ -464,13 +445,13 @@ function sendSettingsMessage(recipientID, setting, errorCode) {
         });});
         break;
       case 'show-frequency':
-        readUserFrequency(recipientID, function(frequency){
+        dbRef.readUserFrequency(recipientID, function(frequency){
           message = "Current automatic notification frequency is " + frequency + ".";
           sendTextMessage(recipientID, message);
         });
         break;
       case 'show-update-time':
-        readUserTime(recipientID, function(time){
+        dbRef.readUserTime(recipientID, function(time){
           message = "Current automated message time is " + time + ".";
           sendTextMessage(recipientID, message);
         });
@@ -487,7 +468,7 @@ function sendEventsMessage(recipientID, events) {
 }
 
 function processEventRequest(recipientID, callback) {
-  return findEvents(recipientID, callback);
+  return eventFinder.findEvents(recipientID, callback);
 
 }
 
@@ -655,261 +636,3 @@ function callSendAPI(messageData) {
 var server = app.listen(process.env.PORT || 3000, function () {
   console.log("Listening on port %s", server.address().port);
 });
-<<<<<<< HEAD
-=======
-
-//DataBase functions
-
-function writeUserData(_userId, _university, _keywords, _min, _max, _time, _frequency) {
-  database.ref('users/' + _userId).set({
-    university: _university,
-    keywords: _keywords,
-    min: _min,
-    max: _max,
-    time: _time,
-    frequency: _frequency
-  }, function(error) {
-    if (error) {
-    console.log("Data could not be saved." + error);
-  } else {
-    console.log("Data saved successfully.");
-  }
-  });
-}
-
-function writeUserUniversity(_userId, _university) {
-
-  database.ref('users/' + _userId).update({
-      "university": _university,
-    }); 
-}
-
-function writeUserKeywords(_userId, _keywords) {
-
-  database.ref('users/' + _userId).update({
-      "keywords": _keywords,
-    }); 
-}
-
-function writeUserMin(_userId, _min) {
-
-  database.ref('users/' + _userId).update({
-      "min": _min,
-    }); 
-}
-
-function writeUserMax(_userId, _max) {
-
-  database.ref('users/' + _userId).update({
-      "max": _max,
-    }); 
-}
-
-function writeUserTime(_userId, _time) {
-
-  database.ref('users/' + _userId).update({
-      "time": _time,
-    }); 
-}
-
-function writeUserFrequency(_userId, _frequency) {
-
-  database.ref('users/' + _userId).update({
-      "frequency": _frequency,
-    }); 
-}
-
-function readUserData(_userId, callback) {
-
-  readUserUniversity(_userId, function(university) {
-    readUserKeywords(_userId, function(keywords) {
-      readUserMin(_userId, function(min) {
-        readUserMax(_userId, function(max) {
-          readUserTime(_userId, function(time) {
-            readUserFrequency(_userId, function(frequency) {
-              var stringArray = [];
-              stringArray.push(university);
-              stringArray.push(keywords);
-              stringArray.push(min);
-              stringArray.push(max);
-              stringArray.push(time);
-              stringArray.push(frequency);
-              return callback(stringArray);
-  });});});});});});
-}
-
-function readUserUniversity(_userId, callback) {
-
-  database.ref('users/' + _userId + '/' + 'university').once("value", function(snapshot) {
-    console.log(snapshot.val());
-    return callback(snapshot.val());
-  }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-      return "";
-  });
-}
-
-function readUserKeywords(_userId, callback) {
-
-  database.ref('users/' + _userId + '/' + 'keywords').once("value", function(snapshot) {
-    console.log(snapshot.val());
-    return callback(snapshot.val());
-  }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-      return "";
-  });
-}
-
-function readUserMin(_userId, callback) {
-
-  database.ref('users/' + _userId + '/' + 'min').once("value", function(snapshot) {
-    console.log(snapshot.val());
-    return callback(snapshot.val());
-  }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-      return "";
-  });
-}
-
-function readUserMax(_userId, callback) {
-
-  database.ref('users/' + _userId + '/' + 'max').once("value", function(snapshot) {
-    console.log(snapshot.val());
-    return callback(snapshot.val());
-  }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-      return "";
-  });
-}
-
-function readUserTime(_userId, callback) {
-  database.ref('users/' + _userId + '/' + 'time').once("value", function(snapshot) {
-    console.log(snapshot.val());
-    return callback(snapshot.val());
-  }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-      return "";
-  });
-}
-
-function readUserFrequency(_userId, callback) {
-
-  database.ref('users/' + _userId + '/' + 'frequency').once("value", function(snapshot) {
-    console.log(snapshot.val());
-    return callback(snapshot.val());
-  }, function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-      return "";
-  });
-}
-
-
-//Creates a new date object that is days number of days in the future.
-function createNewDate(date, days) {
-  var total_days = date.getDate() + days;
-  var curr_month = date.getMonth(); 
-  var curr_year = date.getFullYear();
-  while (total_days >= monthDays(curr_month, curr_year)) {
-    total_days -= monthDays(curr_month, curr_year);
-    curr_month += 1;
-    if (!(curr_month % 12)) {
-      curr_year += 1;
-      curr_month = 0;
-    }
-  }
-  return new Date(curr_year, curr_month, total_days);
-}
-
-//Determines the number of days in a month
-function monthDays(month, year) {
-  if (month == 3 || month == 5 || month == 8 || month == 10) {
-    return 30;
-  } else if (month == 1) {
-    if (!(year % 400)) {
-      return 29;
-    } else if (!(year % 100)) {
-      return 28;
-    } else if (!(year % 4)) {
-      return 29;
-    } else {
-      return 28;
-    }
-  } else {
-    return 31;
-  }
-}
-
-function findEvents(UserID, callback) {
-    /** Search for all places within location. */
-    //var school = readSchool(UserID);
-    var uriLink = 'https://graph.facebook.com/v2.10/search?q='
-        + "UC Berkeley"
-        + '&type=page&fields=name, events.order(chronological){name, start_time, description}&method=GET';
-    var rawData = request({
-            uri:uriLink,
-                qs: { access_token: process.env.PAGE_ACCESS_TOKEN },
-                method: 'POST',
-                }, function(error, response, body) {
-                  if (!error && response.statusCode == 200) {
-                    return readUserMin(UserID, function(min) {
-                            readUserMax(UserID, function(max) {
-                              readUserKeywords(UserID, function(keyword) {
-                                var min_date = createNewDate(new Date(), parseInt(min));
-                                var max_date = createNewDate(new Date(), parseInt(max));
-                                var parsedData = JSON.parse(body);
-                                var i = 0;
-                                var j = 0;
-                                var urls = new Set();
-                                while (!(parsedData.data[i] === undefined)) {
-                                  while (!(parsedData.data[i].events.data[j] === undefined)) {
-                                    var start_time = parsedData.data[i].events.data[j].start_time;
-                                    var segments = start_time.split(/-|T/);
-                                    var name = parsedData.data[i].events.data[j].name;
-                                    var description = parsedData.data[i].events.data[j].description;
-                                    var event_date = new Date(segments[0], segments[1] - 1, segments[2]);
-                                    if ((name.indexOf(keyword) !== -1) || (description !== undefined) && (description.indexOf(keyword) !== -1)) {
-                                      var min_comparison = compareDates(event_date, min_date);
-                                      var max_comparison = compareDates(event_date, max_date);
-                                      if (!(min_comparison == 1 || max_comparison == -1)) {
-                                        urls.add("facebook.com/" + parsedData.data[i].events.data[j].id);
-                                      }
-                                    }
-                                    j += 1;
-                                  }
-                                  j = 0;
-                                  i += 1;
-                                }
-                                return callback(urls);
-                        });});});
-                  } else {
-                    console.error(response);
-                    console.error(error);
-                  }
-
-        });
-    }
-/*
-  Return 1 if the second date is greater than the first date, -1 if the first date is greater than the first day, and 0 if the two dates are equal.
-*/
-function compareDates(date1, date2) {
-  if (date2.getFullYear() > date1.getFullYear()) {
-    return 1;
-  } else if (date1.getFullYear() > date2.getFullYear()) {
-    return -1;
-  } else {
-    if (date2.getMonth() > date1.getMonth()) {
-      return 1;
-    } else if (date1.getMonth() > date2.getMonth()) {
-      return -1;
-    } else {
-      if (date2.getDate() > date1.getDate()) {
-        return 1;
-      } else if (date1.getDate() > date2.getDate()) {
-        return -1;
-      } else {
-        return 0;
-      }
-    }
-  }
-}
->>>>>>> parent of b98cd55... Update main.js

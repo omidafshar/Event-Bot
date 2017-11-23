@@ -11,9 +11,22 @@ admin.initializeApp({
 // Get a reference to the database service
 var database = admin.database();
 
+// Reference to database to be used by external files
+var dbRef = {};
+
 //DataBase functions
 
-function writeUserData(_userId, _university, _keywords, _min, _max, _time, _frequency) {
+/**
+ * 
+ * @param {*} _userId 
+ * @param {*} _university 
+ * @param {*} _keywords 
+ * @param {*} _min 
+ * @param {*} _max 
+ * @param {*} _time 
+ * @param {*} _frequency 
+ */
+dbRef.writeUserData = function(_userId, _university, _keywords, _min, _max, _time, _frequency) {
     database.ref('users/' + _userId).set({
       university: _university,
       keywords: _keywords,
@@ -30,56 +43,56 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
     });
   }
   
-  function writeUserUniversity(_userId, _university) {
+  dbRef.writeUserUniversity = function(_userId, _university) {
   
     database.ref('users/' + _userId).update({
         "university": _university,
       }); 
   }
   
-  function writeUserKeywords(_userId, _keywords) {
+  dbRef.writeUserKeywords = function(_userId, _keywords) {
   
     database.ref('users/' + _userId).update({
         "keywords": _keywords,
       }); 
   }
   
-  function writeUserMin(_userId, _min) {
+  dbRef.writeUserMin = function(_userId, _min) {
   
     database.ref('users/' + _userId).update({
         "min": _min,
       }); 
   }
   
-  function writeUserMax(_userId, _max) {
+  dbRef.writeUserMax = function(_userId, _max) {
   
     database.ref('users/' + _userId).update({
         "max": _max,
       }); 
   }
   
-  function writeUserTime(_userId, _time) {
+  dbRef.writeUserTime = function(_userId, _time) {
   
     database.ref('users/' + _userId).update({
         "time": _time,
       }); 
   }
   
-  function writeUserFrequency(_userId, _frequency) {
+  dbRef.writeUserFrequency = function(_userId, _frequency) {
   
     database.ref('users/' + _userId).update({
         "frequency": _frequency,
       }); 
   }
   
-  function readUserData(_userId, callback) {
+  dbRef.readUserData = function(_userId, callback) {
   
-    readUserUniversity(_userId, function(university) {
-      readUserKeywords(_userId, function(keywords) {
-        readUserMin(_userId, function(min) {
-          readUserMax(_userId, function(max) {
-            readUserTime(_userId, function(time) {
-              readUserFrequency(_userId, function(frequency) {
+    dbRef.readUserUniversity(_userId, function(university) {
+      dbRef.readUserKeywords(_userId, function(keywords) {
+        dbRef.readUserMin(_userId, function(min) {
+          dbRef.readUserMax(_userId, function(max) {
+            dbRef.readUserTime(_userId, function(time) {
+              dbRef.readUserFrequency(_userId, function(frequency) {
                 var stringArray = [];
                 stringArray.push(university);
                 stringArray.push(keywords);
@@ -91,7 +104,7 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
     });});});});});});
   }
   
-  function readUserUniversity(_userId, callback) {
+  dbRef.readUserUniversity = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'university').once("value", function(snapshot) {
       console.log(snapshot.val());
@@ -102,7 +115,7 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
     });
   }
   
-  function readUserKeywords(_userId, callback) {
+  dbRef.readUserKeywords = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'keywords').once("value", function(snapshot) {
       console.log(snapshot.val());
@@ -113,7 +126,7 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
     });
   }
   
-  function readUserMin(_userId, callback) {
+  dbRef.readUserMin = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'min').once("value", function(snapshot) {
       console.log(snapshot.val());
@@ -124,7 +137,7 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
     });
   }
   
-  function readUserMax(_userId, callback) {
+  dbRef.readUserMax = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'max').once("value", function(snapshot) {
       console.log(snapshot.val());
@@ -135,7 +148,7 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
     });
   }
   
-  function readUserTime(_userId, callback) {
+  dbRef.readUserTime = function(_userId, callback) {
     database.ref('users/' + _userId + '/' + 'time').once("value", function(snapshot) {
       console.log(snapshot.val());
       return callback(snapshot.val());
@@ -145,7 +158,7 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
     });
   }
   
-  function readUserFrequency(_userId, callback) {
+  dbRef.readUserFrequency = function(_userId, callback) {
   
     database.ref('users/' + _userId + '/' + 'frequency').once("value", function(snapshot) {
       console.log(snapshot.val());
@@ -155,3 +168,5 @@ function writeUserData(_userId, _university, _keywords, _min, _max, _time, _freq
         return "";
     });
   }
+
+  module.exports = dbRef;

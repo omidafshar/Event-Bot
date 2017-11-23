@@ -1,4 +1,9 @@
-function findEvents(UserID, callback) {
+const request = require('request');
+const dbRef = require('./db')
+
+var eventFinder = {}
+
+eventFinder.findEvents = function(UserID, callback) {
     /** Search for all places within location. */
     //var school = readSchool(UserID);
     var uriLink = 'https://graph.facebook.com/v2.10/search?q='
@@ -10,9 +15,9 @@ function findEvents(UserID, callback) {
                 method: 'POST',
                 }, function(error, response, body) {
                   if (!error && response.statusCode == 200) {
-                    return readUserMin(UserID, function(min) {
-                            readUserMax(UserID, function(max) {
-                              readUserKeywords(UserID, function(keyword) {
+                    return dbRef.readUserMin(UserID, function(min) {
+                            dbRef.readUserMax(UserID, function(max) {
+                              dbRef.readUserKeywords(UserID, function(keyword) {
                                 var min_date = createNewDate(new Date(), parseInt(min));
                                 var max_date = createNewDate(new Date(), parseInt(max));
                                 var parsedData = JSON.parse(body);
@@ -106,3 +111,5 @@ function createNewDate(date, days) {
       return 31;
     }
   }
+
+  module.exports = eventFinder;
